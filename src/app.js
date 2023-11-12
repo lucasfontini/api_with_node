@@ -1,7 +1,19 @@
-import express from 'express';
+import express from "express";
+import conectaNaDatabase from "./config/dbConnect.js";
+import routes from "./routes/index.js";
+const conexao = await conectaNaDatabase();
+conexao.on("error", (erro) => {
+    console.error("erro de conexão", erro);
+});
+
+conexao.once("open", () => {
+    console.log("Conexão com o banco feita com sucesso");
+});
+
 
 const app = express();
-app.use(express.json());
+// ajuda a gerencias as rotas atruibuindo isso para o arquivo index.js 
+routes(app)
 
 const livros = [{ 'id': 1, 'title': 'the hobbit' }, {
     'id': 2, 'title': 'livro 2'
@@ -14,13 +26,7 @@ function buscaLivro(id) {
     })
 };
 
-app.get('/', (req, res) => {
-    res.status(200).send("Using express for api ");
-});
 
-app.get('/livros', (req, res) => {
-    res.status(200).send(livros);
-});
 
 app.delete('/livros/:id', (req, res) => {
     const index = buscaLivro(req.params.id)
@@ -40,4 +46,5 @@ app.post('/livros', (req, res) => {
 
 });
 
-export default app 
+export default app
+
